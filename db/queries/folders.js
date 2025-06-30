@@ -14,21 +14,19 @@ export const getFolders = async () => {
 
 export const getFolder = async (id) => {
   const sql = `
-    SELECT 
-    *, (SELECT json_agg(files) AS files FROM files WHERE folders.id = files.folder_id) 
-    FROM folders WHERE id = $1
+    SELECT *, (SELECT json_agg(files) FROM files WHERE folders.id = files.folder_id) AS files
+    FROM folders WHERE folders.id=$1
   `;
   const { rows: [folder] } = await db.query(sql, [id]);
-  console.log('FOLDERR', folder);
   return folder;
 }
 
-export const addFile = async (id, name, size, folderId) => {
+export const addFile = async (name, size, folderId) => {
   const sql = `
-    INSERT INTO files (id, name, size, folder_id)
-    VALUES ($1,$2,$3,$4)
-    RETURNING *;
+    INSERT INTO files (name, size, folder_id)
+    VALUES ($1,$2,$3)
+    RETURNING *
   `;
-  const { rows: newFile } = await db.query(sql, [id, name, size, folderId]);
+  const { rows: [newFile] } = await db.query(sql, [name, size, folderId]);
   return newFile;
 }

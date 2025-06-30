@@ -1,6 +1,6 @@
 import db from "#db/client";
 import { createFile } from "./queries/files.js";
-import { createFolder, getFolders, getFolder } from "./queries/folders.js";
+import { createFolder, getFolder } from "./queries/folders.js";
 
 async function seed() {
   // TODO
@@ -23,7 +23,6 @@ async function seed() {
   await createFile("art2", 10, folder3.id);
   await createFile("art3", 10, folder3.id);
   await createFile("art4", 10, folder3.id);
-  console.log(await getFolder(1));
   await db.end();
   console.log("🌱 Database seeded.");
 
