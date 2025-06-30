@@ -28,5 +28,8 @@ export const addFile = async (name, size, folderId) => {
     RETURNING *
   `;
   const { rows: [newFile] } = await db.query(sql, [name, size, folderId]);
+  console.log(newFile);
   return newFile;
 }
+
+// WHERE EXISTS folder_id=$3
