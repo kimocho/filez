@@ -7,7 +7,10 @@ export const createFile = async (name, size, folderId) => {
 }
 
 export const getFiles = async () => {
-  const sql = 'SELECT * FROM files';
+  const sql = `
+    SELECT files.*, folders.name AS folder_name FROM files
+    JOIN folders ON files.folder_id = folders.id;
+  `;
   const { rows: allFiles } = await db.query(sql);
   return allFiles;
 }

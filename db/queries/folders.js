@@ -7,34 +7,28 @@ export const createFolder = async (name) => {
 }
 
 export const getFolders = async () => {
-  const sql = 'SELECT * FROM folders';
+  const sql = `SELECT * FROM folders`;
   const { rows: allFolders } = await db.query(sql);
-  console.log(allFolders);
   return allFolders;
 }
 
-export const getFolder = async () => {
+export const getFolder = async (id) => {
   const sql = `
     SELECT 
-    *, (SELECT json_agg(files) FROM files WHERE folders.id = files.folder_id) 
-    FROM folders
+    *, (SELECT json_agg(files) AS files FROM files WHERE folders.id = files.folder_id) 
+    FROM folders WHERE id = $1
   `;
-  const { rows: folder } = await db.query(sql);
-  console.log(folder);
+  const { rows: [folder] } = await db.query(sql, [id]);
+  console.log('FOLDERR', folder);
   return folder;
 }
 
-// export async function getPersonsIncludingLicense() {
-//   const sql = `
-//   SELECT
-//     *,
-//     (
-//       SELECT to_json(licenses)
-//       FROM licenses
-//       WHERE licenses.person_id = persons.id
-//     ) AS license
-//   FROM persons
-//   `;
-//   const { rows: persons } = await db.query(sql);
-//   return persons;
-// }
+export const addFile = async (id, name, size, folderId) => {
+  const sql = `
+    INSERT INTO files (id, name, size, folder_id)
+    VALUES ($1,$2,$3,$4)
+    RETURNING *;
+  `;
+  const { rows: newFile } = await db.query(sql, [id, name, size, folderId]);
+  return newFile;
+}

@@ -1,23 +1,28 @@
 import express from "express";
 const folderRouter = express.Router();
 export default folderRouter;
-import { getFolders, getFolder } from '../db/queries/folders.js';
+import { getFolders, getFolder } from '#db/queries/folders';
+import { addFile } from '#db/queries/files';
 
-folderRouter.get('/', (req, res) => {
-  const folders = getFolders();
+folderRouter.get('/', async (req, res) => {
+  const folders = await getFolders();
   res.send(folders);
 });
 
 folderRouter.get('/:id', async (req, res) => {
   const { id } = req.params;
-  if (!req.body.id) res.status(404).send('not found');
-  const specificFolder = await getFolder();
-  res.send(specificFolder)
+  if (!req.body) res.status(404).send('not found');
+  const specificFolder = await getFolder(+id);
+  res.send(specificFolder);
 });
 
-folderRouter.post('/:id/files', (req, res) => {
-  if (!req.body) res.status(400).send('request body not provided or missing required fields');
-  console.log(req.body);
-  const folders = getFolders();
-  if (!folders) res.status(404).send('not found');
+folderRouter.post('/:id/files', async (req, res) => {
+  const { id } = req.params;
+  if (!req.body || !req.body.id || !req.body.name || !req.body.size || !req.body.folder_id) {
+    res.status(400).send('request body not provided or missing required fields');
+  }
+  const folder = await getFolder(+id);
+  if (!folder) res.status(404).send('not found');
+  const newFile = await addFile(req.body.id, req.body.name, req.body.size, req.body.folder_id);
+  res.status(201).send(newFile);
 });
